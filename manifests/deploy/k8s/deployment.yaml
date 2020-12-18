@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"displaydata:latest","namespace":"dhbw-co2ampel"},"fieldPath":"spec.template.spec.containers[?(@.name==\"displaydata\")].image","pause":"false"}]'
+    app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"eventbus"}]'
+  labels:
+    app: displaydata
+    app.kubernetes.io/component: displaydata
+    app.kubernetes.io/instance: displaydata
+    app.kubernetes.io/part-of: dhbw-co2ampel
+    app.openshift.io/runtime: nodejs
+  name: displaydata
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: displaydata
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: displaydata
+        deploymentconfig: displaydata
+    spec:
+      containers:
+      - image: replace/me/displaydata:latest
+        imagePullPolicy: Always
+        name: displaydata
+        ports:
+        - containerPort: 4001
+          protocol: TCP
+        resources:
+          envFrom:
+          - configMapRef:
+            name: settings
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        livenessProbe:
+          httpGet:
+            path: /displaydata
+            port: 4001
+          initialDelaySeconds: 3
+          periodSeconds: 5
+          failureThreshold: 3
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30

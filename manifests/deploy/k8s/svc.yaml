@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: displaydata
+    app.kubernetes.io/component: displaydata
+    app.kubernetes.io/instance: displaydata
+    app.kubernetes.io/part-of: dhbw-co2ampel
+  name: displaydata
+spec:
+  ports:
+  - name: 4001-tcp
+    port: 4001
+    protocol: TCP
+    targetPort: 4001
+  selector:
+    app: displaydata
+    deploymentconfig: displaydata
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}

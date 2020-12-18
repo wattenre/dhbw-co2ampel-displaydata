@@ -1,0 +1,21 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  labels:
+    app: displaydata
+    app.kubernetes.io/component: displaydata
+    app.kubernetes.io/instance: displaydata
+    app.kubernetes.io/part-of: dhbw-co2ampel
+  name: displaydata
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+  - from:
+      kind: DockerImage
+      name: replace/me/displaydata:latest
+    importPolicy:
+      scheduled: true
+    name: latest
+    referencePolicy:
+      type: Source
